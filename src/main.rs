@@ -135,7 +135,7 @@ async fn main() -> std::io::Result<()>{
             .service(get_events)
             .service(get_event_image)
     })
-        .bind(("127.0.0.1", 8080))?
+        .bind(("0.0.0.0", 8080))?
         .run()
         .await
 }
