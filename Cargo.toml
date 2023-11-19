@@ -7,6 +7,8 @@ edition = "2021"
 
 [dependencies]
 actix-web = "4"
+actix = "0.13"
+actix-web-actors = "4"
 actix-rt = "2"
 mongodb = { version = "2.7.1", features = ["bson-chrono-0_4", "zlib-compression"]}
 serde = { version = "1.*", features = ["derive"] }
