@@ -3,7 +3,7 @@ use actix_web::web::{Data, Json, Query};
 use mongodb::Client;
 use serde::Deserialize;
 use crate::models::event::KssEvent;
-use crate::services::events_service::{get_all_kss_events, get_image_for_event};
+use crate::services::events_service::{get_all_kss_events, get_image_for_event, get_unread_count, mark_kss_events_as_read};
 
 #[derive(Deserialize)]
 struct PaginationParams {
@@ -19,9 +19,19 @@ async fn get_events(query_params: Query<PaginationParams>, client: Data<Client>)
 
     let kss_events = get_all_kss_events(client.get_ref(), page, limit).await;
 
+    let events_ids: Vec<&str> = kss_events.iter().map(|event| event.id.as_str()).collect();
+    //mark_kss_events_as_read(client.get_ref(), &events_ids).await;
+
     Json(kss_events)
 }
 
+#[get("/api/kss/events/unread")]
+async fn get_unread_events_count(client: Data<Client>) -> Json<u64> {
+
+    let unread_events_count = get_unread_count(client.get_ref()).await;
+
+    Json(unread_events_count)
+}
 
 #[get("/api/kss/events/{id}/image")]
 async fn get_event_image(req: HttpRequest, client: Data<Client>) -> impl Responder {

@@ -11,6 +11,7 @@ pub struct PersistentKssEvent {
     pub confidence: f64,
     pub date: bson::DateTime,
     pub important: bool,
+    pub read: bool,
     pub bounding_boxes: Vec<Vec<i64>>
 }
 
@@ -22,5 +23,6 @@ pub struct KssEvent {
     pub confidence: f64,
     pub date: DateTime<Utc>,
     pub important: bool,
+    pub read: bool,
     pub bounding_boxes: Vec<Vec<i64>>
 }
