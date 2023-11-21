@@ -20,7 +20,7 @@ async fn get_events(query_params: Query<PaginationParams>, client: Data<Client>)
     let kss_events = get_all_kss_events(client.get_ref(), page, limit).await;
 
     let events_ids: Vec<&str> = kss_events.iter().map(|event| event.id.as_str()).collect();
-    //mark_kss_events_as_read(client.get_ref(), &events_ids).await;
+    mark_kss_events_as_read(client.get_ref(), &events_ids).await;
 
     Json(kss_events)
 }
