@@ -24,9 +24,9 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         let cors = Cors::default()
-            .allow_any_origin() // Umożliwia żądania z dowolnego źródła
-            .allow_any_method() // Umożliwia wszystkie metody HTTP
-            .allow_any_header() // Umożliwia wszystkie nagłówki
+            .allow_any_origin()
+            .allow_any_method()
+            .allow_any_header()
             .max_age(3600);
 
         App::new()
