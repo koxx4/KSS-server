@@ -6,8 +6,8 @@ use mongodb::error::Result;
 use mongodb::options::FindOptions;
 use crate::models::event::{KssEvent, PersistentKssEvent};
 
-const KSS_DB: &'static str = "kss";
-const KSS_EVENTS_COLLECTION: &'static str = "kss-events";
+use super::constants::{KSS_DB, KSS_EVENTS_COLLECTION};
+
 
 pub async fn get_unread_events_count(client: &Client) -> Result<u64> {
     let db = client.database(KSS_DB);
