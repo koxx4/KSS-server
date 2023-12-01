@@ -2,7 +2,6 @@ use crate::models::event::{KssEventDto, PersistentKssEvent};
 use futures::{TryStreamExt, AsyncReadExt};
 use mongodb::bson;
 use mongodb::bson::oid::ObjectId;
-use mongodb::change_stream::event::OperationType;
 use mongodb::error::Result;
 use mongodb::options::{FindOptions, GridFsBucketOptions};
 use mongodb::{bson::doc, Client};
@@ -17,17 +16,17 @@ pub async fn get_unread_events_count(client: &Client) -> Result<u64> {
     collection.count_documents(filter, None).await
 }
 
-pub async fn watch_events(client: &Client) {
-    let db = client.database(KSS_DB);
-    let collection = db.collection::<PersistentKssEvent>(KSS_EVENTS_COLLECTION);
-    let mut change_stream = collection.watch(None, None).await.unwrap();
+// pub async fn watch_events(client: &Client) {
+//     let db = client.database(KSS_DB);
+//     let collection = db.collection::<PersistentKssEvent>(KSS_EVENTS_COLLECTION);
+//     let mut change_stream = collection.watch(None, None).await.unwrap();
 
-    while let Some(change) = change_stream.try_next().await.unwrap() {
-        if change.operation_type == OperationType::Insert {
-            todo!()
-        }
-    }
-}
+//     while let Some(change) = change_stream.try_next().await.unwrap() {
+//         if change.operation_type == OperationType::Insert {
+//             todo!()
+//         }
+//     }
+// }
 
 pub async fn get_all_kss_events(client: &Client, page: i64, limit: i64) -> Vec<KssEventDto> {
     let db = client.database(KSS_DB);
@@ -54,18 +53,7 @@ pub async fn get_all_kss_events(client: &Client, page: i64, limit: i64) -> Vec<K
     let mut events: Vec<KssEventDto> = vec![];
 
     while let Some(e) = cursor.try_next().await.unwrap() {
-        let event: KssEventDto = KssEventDto {
-            id: e._id.to_string(),
-            objects: e.objects,
-            image_id: e.image_id.to_string(),
-            confidence: e.confidence,
-            date: e.date.to_chrono(),
-            important: e.important,
-            read: e.read,
-            bounding_boxes: e.bounding_boxes,
-        };
-
-        events.push(event);
+        events.push(e.to_dto());
     }
 
     events

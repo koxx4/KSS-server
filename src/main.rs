@@ -12,7 +12,67 @@ use actix_web::web::Data;
 use actix_web::{web, App, HttpServer};
 use controllers::user_controller::{get_user_preferences_api, set_user_preferences_api};
 use env_logger::Env;
-use mongodb::Client;
+use models::user_pref::{PersistentEventConfig, PersistentUserPreferences};
+use mongodb::bson::{self, doc};
+use mongodb::options::FindOneAndUpdateOptions;
+use mongodb::{Client, Collection};
+
+async fn initialize_user_preferences(client: &Client) {
+    let collection: Collection<PersistentUserPreferences> =
+        client
+            .database("kss")
+            .collection::<PersistentUserPreferences>("user-preferences");
+
+    let event_names = vec![
+        "Fire",
+        "Smoke",
+        "Human",
+        "Other",
+        "Open pot",
+        "Open pot boiling",
+        "Closed pot",
+        "Closed pot boiling",
+        "Dish",
+        "Gas",
+        "Pan",
+        "Closed pan",
+    ];
+    let events_config: Vec<PersistentEventConfig> = event_names
+        .into_iter()
+        .map(|name| PersistentEventConfig {
+            event_name: name.to_string(),
+            important: false,
+            precision_threshold: 80,
+        })
+        .collect();
+
+    let user_pref = doc! {
+        "system_on": false,
+        "input_threshold": 3,
+        "output_threshold": 3,
+        "events_config": bson::to_bson(&events_config).unwrap()
+    };
+
+    let options = FindOneAndUpdateOptions::builder()
+        .upsert(true)
+        .return_document(mongodb::options::ReturnDocument::After)
+        .build();
+
+    let update = doc! { "$setOnInsert": bson::to_bson(&user_pref).unwrap() };
+    let query = doc! { "_id": 1 };
+
+    if collection
+        .find_one(query.clone(), None)
+        .await
+        .unwrap()
+        .is_none()
+    {
+        collection
+            .find_one_and_update(query, update, options)
+            .await
+            .unwrap();
+    }
+}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -22,6 +82,9 @@ async fn main() -> std::io::Result<()> {
     let client = Client::with_uri_str("mongodb://localhost:27017/?replicaSet=rs0")
         .await
         .unwrap();
+
+    // Initializes user preferences on startup if they did not exist before
+    initialize_user_preferences(&client).await;
 
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -40,7 +103,8 @@ async fn main() -> std::io::Result<()> {
             .service(get_event_image)
             .service(get_user_preferences_api)
             .service(set_user_preferences_api)
-            .route("api/kss/ws/check-new", web::get().to(ws_check_new))
+        // UNUSED: probably I will never implement ws support for event provision
+        //.route("api/kss/ws/check-new", web::get().to(ws_check_new))
     })
     .bind(("0.0.0.0", 8080))?
     .run()
