@@ -16,18 +16,6 @@ pub async fn get_unread_events_count(client: &Client) -> Result<u64> {
     collection.count_documents(filter, None).await
 }
 
-// pub async fn watch_events(client: &Client) {
-//     let db = client.database(KSS_DB);
-//     let collection = db.collection::<PersistentKssEvent>(KSS_EVENTS_COLLECTION);
-//     let mut change_stream = collection.watch(None, None).await.unwrap();
-
-//     while let Some(change) = change_stream.try_next().await.unwrap() {
-//         if change.operation_type == OperationType::Insert {
-//             todo!()
-//         }
-//     }
-// }
-
 pub async fn get_all_kss_events(client: &Client, page: i64, limit: i64) -> Vec<KssEventDto> {
     let db = client.database(KSS_DB);
     let collection = db.collection::<PersistentKssEvent>(KSS_EVENTS_COLLECTION);

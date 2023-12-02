@@ -4,13 +4,12 @@ mod repositories;
 mod services;
 
 use crate::controllers::events_controller::{get_event_image, get_events, get_unread_events_count};
-use crate::controllers::events_ws_controller::ws_check_new;
 use crate::controllers::health_controller::health_check;
 use actix_cors::Cors;
 use actix_web::middleware::Logger;
 use actix_web::web::Data;
-use actix_web::{web, App, HttpServer};
-use controllers::user_controller::{get_user_preferences_api, set_user_preferences_api};
+use actix_web::{App, HttpServer};
+use controllers::user_controller::{get_user_preferences_api, set_user_preferences_api, get_power_status_api, set_power_status_api, set_user_push_token};
 use env_logger::Env;
 use models::user_pref::{PersistentEventConfig, PersistentUserPreferences};
 use mongodb::bson::{self, doc};
@@ -103,8 +102,9 @@ async fn main() -> std::io::Result<()> {
             .service(get_event_image)
             .service(get_user_preferences_api)
             .service(set_user_preferences_api)
-        // UNUSED: probably I will never implement ws support for event provision
-        //.route("api/kss/ws/check-new", web::get().to(ws_check_new))
+            .service(get_power_status_api)
+            .service(set_power_status_api)
+            .service(set_user_push_token)
     })
     .bind(("0.0.0.0", 8080))?
     .run()

@@ -1,3 +1,4 @@
+use mongodb::bson;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Default)]
@@ -30,4 +31,15 @@ pub struct UserPreferences {
     pub input_threshold: i32,
     pub output_threshold: i32,
     pub events_config: Vec<EventConfig>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PersistentPushToken {
+    pub token: String,
+    pub date: bson::DateTime
+}
+
+#[derive(Debug, Serialize, Deserialize, Default)]
+pub struct PushTokenRequest {
+    pub token: String
 }
