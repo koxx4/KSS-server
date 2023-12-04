@@ -23,19 +23,20 @@ async fn initialize_user_preferences(client: &Client) {
             .collection::<PersistentUserPreferences>("user-preferences");
 
     let event_names = vec![
-        "Fire",
-        "Smoke",
-        "Human",
-        "Other",
-        "Open pot",
-        "Open pot boiling",
-        "Closed pot",
-        "Closed pot boiling",
-        "Dish",
-        "Gas",
-        "Pan",
-        "Closed pan",
+        "fire",
+        "smoke",
+        "human",
+        "other",
+        "open_pot",
+        "open_pot_boiling",
+        "closed_pot",
+        "closed_pot_boiling",
+        "dish",
+        "gas",
+        "pan",
+        "closed_pan",
     ];
+    
     let events_config: Vec<PersistentEventConfig> = event_names
         .into_iter()
         .map(|name| PersistentEventConfig {
